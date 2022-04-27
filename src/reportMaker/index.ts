@@ -83,7 +83,7 @@ export class NalogRuReportMaker {
         sourceIndex: number,
         item: EnrichedTaxEntry
     ): Array<[string, any]> {
-        return [
+        const fields = [
             [
                 `Ndfl3Package.payload.sheetB.sources[${sourceIndex}].incomeSourceName`,
                 item.name
@@ -91,6 +91,10 @@ export class NalogRuReportMaker {
             [
                 `Ndfl3Package.payload.sheetB.sources[${sourceIndex}].oksmIst`,
                 item.countryCode
+            ],
+            [
+                `Ndfl3Package.payload.sheetB.sources[${sourceIndex}].oksmZach`,
+                '643',
             ],
             [`Ndfl3Package.payload.sheetB.sources[${sourceIndex}].incomeTypeCode`, 1010],
             [
@@ -109,15 +113,22 @@ export class NalogRuReportMaker {
                 `Ndfl3Package.payload.sheetB.sources[${sourceIndex}].incomeDate`,
                 this._formatDate(item.datePay)
             ],
-            [
-                `Ndfl3Package.payload.sheetB.sources[${sourceIndex}].taxPaymentDate`,
-                this._formatDate(item.datePay)
-            ],
-            [
-                `Ndfl3Package.payload.sheetB.sources[${sourceIndex}].paymentAmountCurrency`,
-                item.tax
-            ]
         ];
+
+        if (item.tax) {
+            fields.push(
+                [
+                    `Ndfl3Package.payload.sheetB.sources[${sourceIndex}].taxPaymentDate`,
+                    this._formatDate(item.datePay)
+                ],
+                [
+                    `Ndfl3Package.payload.sheetB.sources[${sourceIndex}].paymentAmountCurrency`,
+                    item.tax
+                ],
+            );
+        }
+
+        return fields as Array<[string, any]>;
     }
 
     private async _setCurrencyAutoCalc(formRoot: puppeteer.ElementHandle) {
